@@ -2,10 +2,14 @@ package com.sky.service.impl;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import com.sky.annotation.AutoFill;
+import com.sky.constant.MessageConstant;
 import com.sky.dto.SetmealDTO;
 import com.sky.dto.SetmealPageQueryDTO;
 import com.sky.entity.Setmeal;
 import com.sky.entity.SetmealDish;
+import com.sky.enumeration.OperationType;
+import com.sky.exception.DeletionNotAllowedException;
 import com.sky.mapper.SetmealDishMapper;
 import com.sky.mapper.SetmealMapper;
 import com.sky.result.PageResult;
@@ -69,5 +73,41 @@ public class SetmealServiceImp implements SetmealService {
         List<SetmealDish> setmealDishes = setmealDishMapper.getSetmealDishesBySetmealId(id);
         setmealVO.setSetmealDishes(setmealDishes);
         return setmealVO;
+    }
+
+    @Override
+    public void startOrStop(Integer status, Long id) {
+        Setmeal setmeal = new Setmeal();
+        setmeal.setStatus(status);
+        setmeal.setId(id);
+        setmealMapper.update(setmeal);
+    }
+
+    @Override
+    public void update(SetmealDTO setmealDTO) {
+        Setmeal setmeal = new Setmeal();
+        BeanUtils.copyProperties(setmealDTO, setmeal);
+        setmealMapper.update(setmeal);
+        if(setmealDTO.getSetmealDishes()!= null && setmealDTO.getSetmealDishes().size()>0){
+            setmealDishMapper.deleteBySetmealId(setmeal.getId());
+            List<SetmealDish> setmealDishes = setmealDTO.getSetmealDishes();
+            setmealDishes.forEach(setmealDish -> {
+                setmealDish.setSetmealId(setmeal.getId());
+            });
+            setmealDishMapper.insertBatch(setmealDTO.getSetmealDishes());
+        }
+    }
+
+    @Transactional
+    @Override
+    public void delete(List<Long> ids) {
+        for(Long id : ids){
+            SetmealVO setmeal = setmealMapper.getById(id);
+            if(setmeal.getStatus() == 1){
+                throw new DeletionNotAllowedException(MessageConstant.SETMEAL_ON_SALE);
+            }
+            setmealMapper.delete(id);
+            setmealDishMapper.deleteBySetmealId(id);
+        }
     }
 }
