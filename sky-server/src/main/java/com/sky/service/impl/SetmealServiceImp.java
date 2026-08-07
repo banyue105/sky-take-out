@@ -62,4 +62,12 @@ public class SetmealServiceImp implements SetmealService {
             setmealDishMapper.insertBatch(setmealDishes);
         }
     }
+
+    @Override
+    public SetmealVO getById(Long id) {
+        SetmealVO setmealVO = setmealMapper.getById(id);
+        List<SetmealDish> setmealDishes = setmealDishMapper.getSetmealDishesBySetmealId(id);
+        setmealVO.setSetmealDishes(setmealDishes);
+        return setmealVO;
+    }
 }
