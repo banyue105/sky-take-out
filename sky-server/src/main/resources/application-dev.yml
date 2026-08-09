@@ -17,3 +17,7 @@ sky:
     access-key-id: ${OSS_ACCESS_KEY_ID}
     access-key-secret: ${OSS_ACCESS_KEY_SECRET}
     bucket-name: sky-take-out-banyue
+
+  wechat:
+    appid: wx491fd2145b42e2c6
+    secret: ${WECHAT_SECRET}

@@ -67,4 +67,12 @@ public interface DishMapper {
      */
     @Select("select * from dish where category_id = #{categoryId}")
     List<DishVO> list(Long categoryId);
+
+    /**
+     * 获取起售中的菜品
+     * @param dish
+     * @return
+     */
+    @Select("select * from dish where status = 1 and category_id = #{categoryId}")
+    List<Dish> onSaleList(Dish dish);
 }
