@@ -1,8 +1,6 @@
 package com.sky.service;
 
-import com.sky.dto.OrdersPageQueryDTO;
-import com.sky.dto.OrdersPaymentDTO;
-import com.sky.dto.OrdersSubmitDTO;
+import com.sky.dto.*;
 import com.sky.result.PageResult;
 import com.sky.vo.OrderPaymentVO;
 import com.sky.vo.OrderSubmitVO;
@@ -67,4 +65,22 @@ public interface OrderService {
      * @return
      */
     PageResult adminOrders(OrdersPageQueryDTO ordersPageQueryDTO);
+
+    /**
+     * 接单
+     * @param id
+     */
+    void confirm(Long id);
+
+    /**
+     * 商户拒绝接收订单
+     * @param ordersRejectionDTO
+     */
+    void rejection(OrdersRejectionDTO ordersRejectionDTO);
+
+    /**
+     * 商户取消订单
+     * @param ordersCancelDTO
+     */
+    void cancelByAdmin(OrdersCancelDTO ordersCancelDTO);
 }
