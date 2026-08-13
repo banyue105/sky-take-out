@@ -55,6 +55,11 @@ sky:
     appid: ${sky.wechat.appid}
     secret: ${sky.wechat.secret}
 
+  shop:
+    address: ${sky.shop.address}
+  baidu:
+    ak: ${sky.baidu.ak}
+
 #  wechat:
 #    appid: ${sky.wechat.appid}
 #    secret: ${sky.wechat.secret}

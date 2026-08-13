@@ -21,3 +21,8 @@ sky:
   wechat:
     appid: wx491fd2145b42e2c6
     secret: ${WECHAT_SECRET}
+
+  shop:
+    address: 河南省安阳市内黄县万洋购物广场
+  baidu:
+    ak: ${BAIDU_AK}
