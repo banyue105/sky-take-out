@@ -14,6 +14,7 @@ import com.sky.result.PageResult;
 import com.sky.service.OrderService;
 import com.sky.utils.WeChatPayUtil;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import org.springframework.beans.BeanUtils;
@@ -126,6 +127,13 @@ public class OrderServiceImp implements OrderService {
             throw new AddressBookBusinessException(MessageConstant.SHOPPING_CART_IS_NULL);
         }
 
+        //判断预计配送状态
+        LocalDateTime estimatedDeliveryTime = LocalDateTime.now().plusMinutes(61);
+        if (estimatedDeliveryTime.isBefore(ordersSubmitDTO.getEstimatedDeliveryTime())) {
+            ordersSubmitDTO.setDeliveryStatus(0);
+        }else{
+            ordersSubmitDTO.setDeliveryStatus(1);
+        }
         //构造订单数据
         Orders order = new Orders();
         BeanUtils.copyProperties(ordersSubmitDTO, order);
@@ -336,9 +344,6 @@ public class OrderServiceImp implements OrderService {
             throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
         }
 
-        if(order.getStatus() != Orders.CONFIRMED){
-            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
-        }
 
         order.setPayStatus(Orders.REFUND);
         order.setStatus(Orders.CANCELLED);
@@ -349,4 +354,52 @@ public class OrderServiceImp implements OrderService {
     }
 
 
+    /**
+     * 订单派送
+     * @param id
+     */
+    @Override
+    public void delivery(Long id) {
+        Orders order = orderMapper.getOrderById(id);
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (order.getStatus() != Orders.CONFIRMED) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        order.setStatus(Orders.DELIVERY_IN_PROGRESS);
+        order.setDeliveryTime(LocalDateTime.now());
+        orderMapper.update(order);
+    }
+
+    /**
+     * 订单完成
+     * @param id
+     */
+    @Override
+    public void complete(Long id) {
+        Orders order = orderMapper.getOrderById(id);
+        if (order == null) {
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+        if (order.getStatus() != Orders.DELIVERY_IN_PROGRESS) {
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+        order.setStatus(Orders.COMPLETED);
+        order.setDeliveryTime(LocalDateTime.now());
+        orderMapper.update(order);
+    }
+
+    /**
+     * 订单统计
+     * @return
+     */
+    @Override
+    public OrderStatisticsVO statistics() {
+        OrderStatisticsVO orderStatisticsVO = new OrderStatisticsVO();
+        orderStatisticsVO.setConfirmed(orderMapper.getConfirmedNum(Orders.CONFIRMED));
+        orderStatisticsVO.setDeliveryInProgress(orderMapper.getDeliveryInProgressNum(Orders.DELIVERY_IN_PROGRESS));
+        orderStatisticsVO.setToBeConfirmed(orderMapper.getToBeConfirmedNum(Orders.TO_BE_CONFIRMED));
+        return orderStatisticsVO;
+    }
 }

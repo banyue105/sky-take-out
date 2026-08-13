@@ -43,4 +43,16 @@ public interface OrderMapper {
      */
     @Select("select * from orders where id = #{id}")
     Orders getOrderById(Long id);
+
+    /**
+     * 根据状态查询订单数量
+     * @param confirmed
+     * @return
+     */
+    @Select("select count(*) from orders where status = #{confirmed}")
+    Integer getConfirmedNum(Integer confirmed);
+    @Select("select count(*) from orders where status = #{deliveryInProgress}")
+    Integer getDeliveryInProgressNum(Integer deliveryInProgress);
+    @Select("select count(*) from orders where status = #{toBeConfirmed}")
+    Integer getToBeConfirmedNum(Integer toBeConfirmed);
 }

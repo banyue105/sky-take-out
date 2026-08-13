@@ -5,6 +5,7 @@ import com.sky.result.PageResult;
 import com.sky.result.Result;
 import com.sky.service.OrderService;
 import com.sky.vo.OrderPaymentVO;
+import com.sky.vo.OrderStatisticsVO;
 import com.sky.vo.OrderSubmitVO;
 import com.sky.vo.OrderVO;
 import io.swagger.annotations.Api;
@@ -87,5 +88,31 @@ public class OrderController {
         return Result.success();
     }
 
+    /**
+     * 订单派送
+     * @param id
+     * @return
+     */
+    @PutMapping("/delivery/{id}")
+    @ApiOperation("订单派送")
+    public Result delivery(@PathVariable Long id){
+        log.info("订单派送，id：{}", id);
+        orderService.delivery(id);
+        return Result.success();
+    }
 
+    @PutMapping("/complete/{id}")
+    @ApiOperation("订单完成")
+    public Result complete(@PathVariable Long id){
+        log.info("订单完成，id：{}", id);
+        orderService.complete(id);
+        return Result.success();
+    }
+
+    @GetMapping("/statistics")
+    @ApiOperation("订单统计")
+    public Result<OrderStatisticsVO> statistics(){
+        log.info("订单统计");
+        return Result.success(orderService.statistics());
+    }
 }
