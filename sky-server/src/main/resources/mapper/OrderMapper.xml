@@ -43,4 +43,14 @@
         where id = #{id}
     </update>
 
+    <select id="historyOrders" resultType="com.sky.vo.OrderVO">
+        select * from orders
+        <where>
+            <if test="status != null">
+                status = #{status}
+            </if>
+        </where>
+        order by order_time desc
+    </select>
+
 </mapper>
