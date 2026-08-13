@@ -60,4 +60,11 @@ public interface OrderService {
      * @param id
      */
     void reminder(Long id);
+
+    /**
+     * 用户端订单
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    PageResult adminOrders(OrdersPageQueryDTO ordersPageQueryDTO);
 }

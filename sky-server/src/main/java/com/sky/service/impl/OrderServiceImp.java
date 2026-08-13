@@ -28,6 +28,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OrderServiceImp implements OrderService {
@@ -212,7 +213,23 @@ public class OrderServiceImp implements OrderService {
     @Override
     public void cancel(Long id) {
         Orders order = orderMapper.getOrderById(id);
+
+        if(order == null){
+            throw new OrderBusinessException(MessageConstant.ORDER_NOT_FOUND);
+        }
+
+        if(order.getStatus() > Orders.TO_BE_CONFIRMED){
+            throw new OrderBusinessException(MessageConstant.ORDER_STATUS_ERROR);
+        }
+
+        if(order.getPayStatus() == Orders.TO_BE_CONFIRMED){
+            order.setStatus(Orders.REFUND);
+        }
+
         order.setStatus(Orders.CANCELLED);
+        order.setCancelTime(LocalDateTime.now());
+        order.setCancelReason("用户取消");
+
         orderMapper.update(order);
     }
 
@@ -243,5 +260,33 @@ public class OrderServiceImp implements OrderService {
     @Override
     public void reminder(Long id) {
 
+    }
+
+
+/****************************************************************************************************************
+     后台订单
+ ****************************************************************************************************************/
+
+
+    /**
+     * 订单查询
+     * @param ordersPageQueryDTO
+     * @return
+     */
+    @Override
+    public PageResult adminOrders(OrdersPageQueryDTO ordersPageQueryDTO) {
+        ordersPageQueryDTO.setUserId(BaseContext.getCurrentId());
+        PageHelper.startPage(ordersPageQueryDTO.getPage(), ordersPageQueryDTO.getPageSize());
+        Page<OrderVO> page = orderMapper.historyOrders(ordersPageQueryDTO);
+        long total = page.getTotal();
+        List<OrderVO> orderVOList = page.getResult();
+        orderVOList.forEach(orderVO -> {
+            List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(orderVO.getId());
+            String orderDishes = orderDetailList.stream().map(orderDetail -> {
+                return orderDetail.getName() + "*" + orderDetail.getNumber() + (orderDetail.getDishFlavor() == null ? "" : orderDetail.getDishFlavor());
+            }).collect(Collectors.joining("、"));
+            orderVO.setOrderDishes(orderDishes);
+        });
+        return new PageResult(total, orderVOList);
     }
 }
