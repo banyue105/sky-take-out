@@ -205,5 +205,43 @@ public class OrderServiceImp implements OrderService {
         return orderVO;
     }
 
+    /**
+     * 取消订单
+     * @param id
+     */
+    @Override
+    public void cancel(Long id) {
+        Orders order = orderMapper.getOrderById(id);
+        order.setStatus(Orders.CANCELLED);
+        orderMapper.update(order);
+    }
 
+    /**
+     * 再来一单
+     * @param id
+     */
+    @Override
+    public void repetition(Long id) {
+        // 根据订单id查询订单明细数据
+        List<OrderDetail> orderDetailList = orderDetailMapper.getByOrderId(id);
+        // 构造购物车数据
+        ShoppingCart shoppingCart = new ShoppingCart();
+        for (OrderDetail orderDetail : orderDetailList) {
+            BeanUtils.copyProperties(orderDetail, shoppingCart);
+            shoppingCart.setUserId(BaseContext.getCurrentId());
+            shoppingCart.setId(null);
+            shoppingCart.setCreateTime(LocalDateTime.now());
+            shoppingCartMapper.insert(shoppingCart);
+        }
+    }
+
+
+    /**
+     * 订单提醒
+     * @param id
+     */
+    @Override
+    public void reminder(Long id) {
+
+    }
 }

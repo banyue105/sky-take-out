@@ -80,4 +80,38 @@ public class OrderController {
         return Result.success(orderService.getOrderDetail(id));
     }
 
+
+    /**
+     * 取消订单
+     * @param id
+     * @return
+     */
+    @PutMapping("/cancel/{id}")
+    @ApiOperation("取消订单")
+    public Result cancel(@PathVariable Long id){
+        log.info("取消订单，订单编号：{}", id);
+        orderService.cancel(id);
+        return Result.success();
+    }
+
+    @PostMapping("/repetition/{id}")
+    @ApiOperation("再来一单")
+    public Result repetition(@PathVariable Long id){
+        log.info("再来一单，订单编号：{}", id);
+        orderService.repetition(id);
+        return Result.success();
+    }
+
+    /**
+     * 催单
+     * @param id
+     * @return
+     */
+    @GetMapping("/reminder/{id}")
+    @ApiOperation("催单")
+    public Result reminder(@PathVariable Long id){
+        log.info("催单，订单编号：{}", id);
+        orderService.reminder(id);
+        return Result.success();
+    }
 }
